@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #
 # Author: Mike McKerns (mmckerns @caltech and @uqfoundation)
-# Copyright (c) 1997-2015 California Institute of Technology.
+# Copyright (c) 1997-2016 California Institute of Technology.
+# Copyright (c) 2016-2017 The Uncertainty Quantification Foundation.
 # License: 3-clause BSD.  The full license text is available at:
 #  - http://trac.mystic.cacr.caltech.edu/project/pathos/browser/pox/LICENSE
 
@@ -38,7 +39,7 @@ def license():
 
 def citation():
     """print citation"""
-    print(__doc__[-499:-140])
+    print(__doc__[-501:-123])
     return
 
 # end of file

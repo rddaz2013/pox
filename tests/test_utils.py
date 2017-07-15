@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 #
 # Author: Mike McKerns (mmckerns @caltech and @uqfoundation)
-# Copyright (c) 1997-2015 California Institute of Technology.
+# Copyright (c) 1997-2016 California Institute of Technology.
+# Copyright (c) 2016-2017 The Uncertainty Quantification Foundation.
 # License: 3-clause BSD.  The full license text is available at:
 #  - http://trac.mystic.cacr.caltech.edu/project/pathos/browser/pox/LICENSE
 """
 test pox's higher-level shell utilities
 """
 import os
+import sys
 
-def test():
-    '''test(); script to test all functions'''
+def test_utils():
+    '''script to test all utils functions'''
     from pox import pattern, getvars, expandvars, convert, replace, \
                     index_join, findpackage, remote, parse_remote, \
                     select, selectdict, env, homedir, username
@@ -25,12 +27,15 @@ def test():
                  'DUMMY_VERSION':'6.9','DUMMY_STUFF':'/a/b',
                  'DV_DIR':'${HOME}/dev', 'QAZWERFDSXCV_VERSION':'0.0.1'}
     home = homedir()
+    if 'HOME' not in os.environ:
+        os.environ['HOME'] = home
     assert getvars(home) == {}
     d1 = {'DV_DIR': '${HOME}/dev', 'QAZWERFDSXCV_VERSION': '0.0.1'}
     d2 = {'MIKE_DIR': '${HOME}/junk'}
-    assert getvars('${DV_DIR}/pythia-${QAZWERFDSXCV_VERSION}/stuff',bogusdict) == d1
-    assert getvars('${MIKE_DIR}/stuff',bogusdict) == d2
-    assert getvars('${HOME}/stuff') == {'HOME': homedir()}
+    assert getvars('${DV_DIR}/pythia-${QAZWERFDSXCV_VERSION}/stuff',bogusdict,'/') == d1
+    assert getvars('${MIKE_DIR}/stuff',bogusdict,'/') == d2
+    _home = 'HOME'
+    assert getvars('${%s}/stuff' % _home, sep='/') == {_home: homedir()}
 
    #print('testing expandvars...')
     assert expandvars(home) == homedir()
@@ -40,7 +45,7 @@ def test():
     assert expandvars('${MIKE_DIR}/${DV_DIR}/stuff',bogusdict) == x
     assert expandvars('${DV_DIR}/${QAZWERFDSXCV_VERSION}',secondref=bogusdict) == \
            expandvars('${DV_DIR}/${QAZWERFDSXCV_VERSION}',bogusdict,os.environ)
-    assert expandvars('${HOME}/stuff') == ''.join([homedir(), '/stuff'])
+    assert expandvars('${%s}/stuff' % _home) == ''.join([homedir(), '/stuff'])
 
    #print('testing convert...')
     source = 'test.txt'
@@ -54,7 +59,7 @@ def test():
     replace(source,{' is ':' was '})
     replace(source,{'\sfile.\s':'.'})
     f = open(source,'r')
-    assert f.read() == 'this was a test.'
+    assert f.read().rstrip() == 'this was a test.'
     f.close()
     os.remove(source)
 
@@ -107,7 +112,4 @@ def test():
     return
 
 if __name__=='__main__':
-    test()
-
-
-# End of file 
+    test_utils()
